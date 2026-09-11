@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube to MP3 Converter</title>
+  <title>YouTube to MP3 Converter Pro</title>
   
   <link rel="icon" type="image/png" href="arts/iconYT.png">
   <link rel="apple-touch-icon" href="arts/iconYT.png">
   <meta name="theme-color" content="#0b0e14">
-
   <link rel="manifest" href="manifest.json">
 
   <style>
@@ -21,6 +20,7 @@
       --text: #f3f4f6;
       --text-muted: #9ca3af;
       --success: #10b981;
+      --secondary: #3b82f6;
     }
 
     * {
@@ -85,11 +85,6 @@
       justify-content: space-between;
     }
 
-    .install-bar span {
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
     .install-btn {
       background: var(--accent);
       color: #fff;
@@ -141,10 +136,6 @@
 
     button:hover {
       background: var(--accent-hover);
-    }
-
-    button:active {
-      transform: scale(0.98);
     }
 
     button:disabled {
@@ -247,9 +238,13 @@
       height: 40px;
     }
 
+    .action-group {
+      display: flex;
+      gap: 10px;
+    }
+
     .download-action {
-      display: none;
-      width: 100%;
+      flex: 1;
       padding: 12px;
       background: var(--success);
       color: #000;
@@ -260,8 +255,15 @@
       font-size: 0.95rem;
     }
 
-    .download-action:hover {
-      opacity: 0.9;
+    .thumb-action {
+      padding: 12px 18px;
+      background: var(--secondary);
+      color: #fff;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
     }
 
     .alert {
@@ -290,15 +292,9 @@
     }
 
     @media (max-width: 600px) {
-      .controls-grid {
-        grid-template-columns: 1fr;
-      }
-      .input-group {
-        flex-direction: column;
-      }
-      button {
-        padding: 14px;
-      }
+      .controls-grid { grid-template-columns: 1fr; }
+      .input-group { flex-direction: column; }
+      .action-group { flex-direction: column; }
     }
   </style>
 </head>
@@ -307,8 +303,8 @@
   <div class="container">
     <header>
       <img src="arts/iconYT.png" alt="App Icon" class="app-icon">
-      <h1>MP3 Extractor</h1>
-      <p>High-speed YouTube audio extraction app</p>
+      <h1>MP3 Extractor Pro</h1>
+      <p>High-performance YouTube audio & thumbnail downloader</p>
     </header>
 
     <div id="installBar" class="install-bar">
@@ -323,22 +319,19 @@
 
     <div class="controls-grid">
       <div class="select-box">
-        <label for="bitrate">Bitrate</label>
-        <select id="bitrate">
-          <option value="320">320 kbps (HQ)</option>
-          <option value="256">256 kbps</option>
-          <option value="192" selected>192 kbps</option>
-          <option value="128">128 kbps</option>
+        <label for="format">Preferred Audio Format</label>
+        <select id="format">
+          <option value="mp3">MP3 / AAC</option>
+          <option value="m4a">M4A</option>
+          <option value="opus">OPUS</option>
         </select>
       </div>
 
       <div class="select-box">
-        <label for="format">Container</label>
-        <select id="format">
-          <option value="mp3">MP3</option>
-          <option value="m4a">M4A</option>
-          <option value="opus">OPUS</option>
-          <option value="wav">WAV</option>
+        <label for="quality">Audio Quality Target</label>
+        <select id="quality">
+          <option value="high">Best Available</option>
+          <option value="medium">Medium</option>
         </select>
       </div>
     </div>
@@ -349,8 +342,8 @@
       <div class="media-header">
         <img id="thumbImg" class="thumb-preview" src="" alt="Thumbnail">
         <div class="media-info">
-          <h3 id="mediaTitle">Parsing target media...</h3>
-          <p id="mediaDetails">Status: Initializing extraction</p>
+          <h3 id="mediaTitle">Parsing video stream...</h3>
+          <p id="mediaDetails">Status: Processing audio pipeline</p>
         </div>
       </div>
 
@@ -360,16 +353,21 @@
 
       <audio id="audioElement" controls style="display: none;"></audio>
 
-      <a id="downloadBtn" class="download-action" href="#" target="_blank" download>
-        Save Audio File
-      </a>
+      <div class="action-group">
+        <a id="downloadBtn" class="download-action" href="#" target="_blank" download style="display: none;">
+          Download Audio
+        </a>
+        <a id="thumbBtn" class="thumb-action" href="#" target="_blank" download style="display: none;">
+          Get Thumbnail
+        </a>
+      </div>
     </div>
   </div>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('sw.js').catch(() => {});
       });
     }
 
@@ -387,9 +385,7 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          installBar.style.display = 'none';
-        }
+        if (outcome === 'accepted') installBar.style.display = 'none';
         deferredPrompt = null;
       }
     });
@@ -404,6 +400,14 @@
     const mediaDetails = document.getElementById('mediaDetails');
     const audioElement = document.getElementById('audioElement');
     const downloadBtn = document.getElementById('downloadBtn');
+    const thumbBtn = document.getElementById('thumbBtn');
+
+    const INVIDIOUS_NODES = [
+      'https://inv.riverside.rocks',
+      'https://invidious.nerdvpn.de',
+      'https://invidious.drgns.space',
+      'https://vid.puffyan.us'
+    ];
 
     function parseYouTubeID(url) {
       const pattern = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
@@ -411,8 +415,8 @@
       return match ? match[1] : null;
     }
 
-    function displayError(message) {
-      alertBox.innerText = message;
+    function displayError(msg) {
+      alertBox.innerText = msg;
       alertBox.style.display = 'block';
       processBtn.disabled = false;
       processBtn.innerHTML = 'Extract Audio';
@@ -423,7 +427,30 @@
       statusCard.style.display = 'none';
       audioElement.style.display = 'none';
       downloadBtn.style.display = 'none';
+      thumbBtn.style.display = 'none';
       progressFill.style.width = '0%';
+    }
+
+    async function fetchStreamWithFallback(videoId) {
+      for (const node of INVIDIOUS_NODES) {
+        try {
+          const res = await fetch(`${node}/api/v1/videos/${videoId}`, { signal: AbortSignal.timeout(5000) });
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (data && data.adaptiveFormats) {
+            const audioStreams = data.adaptiveFormats.filter(item => item.type && item.type.includes('audio'));
+            if (audioStreams.length > 0) {
+              return {
+                title: data.title || videoId,
+                streamUrl: audioStreams[0].url
+              };
+            }
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      throw new Error('All primary extraction nodes are busy. Try again in a few moments.');
     }
 
     async function executeExtraction() {
@@ -432,62 +459,44 @@
       const videoId = parseYouTubeID(rawUrl);
 
       if (!videoId) {
-        displayError('Invalid YouTube URL format provided.');
+        displayError('Invalid YouTube URL. Please check the link structure.');
         return;
       }
 
       processBtn.disabled = true;
-      processBtn.innerHTML = '<div class="spinner"></div> Resolving...';
+      processBtn.innerHTML = '<div class="spinner"></div> Processing...';
 
-      thumbImg.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-      mediaTitle.innerText = `YouTube ID: ${videoId}`;
-      mediaDetails.innerText = 'Connecting to extraction engine...';
+      const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      thumbImg.src = thumbUrl;
+      mediaTitle.innerText = `Resolving YouTube ID: ${videoId}`;
+      mediaDetails.innerText = 'Connecting to fallback proxy network...';
       statusCard.style.display = 'block';
-      progressFill.style.width = '25%';
+      progressFill.style.width = '35%';
 
-      const selectedBitrate = document.getElementById('bitrate').value;
-      const selectedFormat = document.getElementById('format').value;
+      thumbBtn.href = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      thumbBtn.style.display = 'block';
 
       try {
-        progressFill.style.width = '50%';
-        const response = await fetch('https://api.cobalt.tools/api/json', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            url: `https://www.youtube.com/watch?v=${videoId}`,
-            audioFormat: selectedFormat,
-            audioBitrate: selectedBitrate,
-            isAudioOnly: true
-          })
-        });
+        progressFill.style.width = '65%';
+        const result = await fetchStreamWithFallback(videoId);
 
-        if (!response.ok) throw new Error('Primary engine returned error status.');
-        const result = await response.json();
+        progressFill.style.width = '100%';
+        mediaTitle.innerText = result.title;
+        mediaDetails.innerText = 'Audio stream extracted successfully.';
 
-        if (result.status === 'stream' || result.status === 'redirect') {
-          const streamUrl = result.url;
-          progressFill.style.width = '100%';
-          mediaDetails.innerText = `Format: ${selectedFormat.toUpperCase()} | Target Bitrate: ${selectedBitrate}kbps`;
+        audioElement.src = result.streamUrl;
+        audioElement.style.display = 'block';
 
-          audioElement.src = streamUrl;
-          audioElement.style.display = 'block';
+        downloadBtn.href = result.streamUrl;
+        downloadBtn.setAttribute('download', `${result.title}.mp3`);
+        downloadBtn.style.display = 'block';
 
-          downloadBtn.href = streamUrl;
-          downloadBtn.setAttribute('download', `${videoId}.${selectedFormat}`);
-          downloadBtn.style.display = 'block';
-
-          processBtn.disabled = false;
-          processBtn.innerHTML = 'Extract Audio';
-        } else {
-          throw new Error('Pipeline error: Unresolvable stream payload.');
-        }
+        processBtn.disabled = false;
+        processBtn.innerHTML = 'Extract Audio';
 
       } catch (err) {
         statusCard.style.display = 'none';
-        displayError(`Extraction failed: ${err.message}`);
+        displayError(err.message);
       }
     }
 
