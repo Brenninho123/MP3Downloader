@@ -1,4 +1,4 @@
-const SW_VERSION = 'v2';
+const SW_VERSION = 'v3';
 const STATIC_CACHE = `mp3downloader-static-${SW_VERSION}`;
 const RUNTIME_CACHE = `mp3downloader-runtime-${SW_VERSION}`;
 const MAX_RUNTIME_ITEMS = 60;
@@ -8,18 +8,6 @@ const SHELL_ASSETS = [
   './index.html',
   './manifest.json',
   './arts/iconYT.png'
-];
-
-const RUNTIME_HOST_DENYLIST = [
-  'api.cobalt.tools',
-  'cobalt.api.scrapes.pro',
-  'dwnld.nichind.dev',
-  'api.invidious.io',
-  'inv.riverside.rocks',
-  'invidious.nerdvpn.de',
-  'vid.puffyan.us',
-  'yt.artemislena.eu',
-  'invidious.jing.rocks'
 ];
 
 const CACHEABLE_THUMBNAIL_HOSTS = [
@@ -57,10 +45,6 @@ function notifyClients(message) {
   return self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
     clients.forEach((client) => client.postMessage(message));
   });
-}
-
-function isHostDenied(url) {
-  return RUNTIME_HOST_DENYLIST.some((host) => url.hostname.includes(host));
 }
 
 function isCacheableThumbnail(url) {
@@ -114,8 +98,10 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const requestUrl = new URL(request.url);
+  const isSameOrigin = requestUrl.origin === self.location.origin;
+  const isCacheableRemote = isCacheableThumbnail(requestUrl);
 
-  if (isHostDenied(requestUrl)) {
+  if (!isSameOrigin && !isCacheableRemote) {
     return;
   }
 
@@ -124,13 +110,5 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (requestUrl.origin === self.location.origin) {
-    event.respondWith(staleWhileRevalidate(request));
-    return;
-  }
-
-  if (isCacheableThumbnail(requestUrl)) {
-    event.respondWith(staleWhileRevalidate(request));
-    return;
-  }
+  event.respondWith(staleWhileRevalidate(request));
 });
