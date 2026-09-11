@@ -3,24 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube to MP3 Converter Pro</title>
-  
+  <title>Universal MP3 & Audio Downloader Pro</title>
+
   <link rel="icon" type="image/png" href="arts/iconYT.png">
   <link rel="apple-touch-icon" href="arts/iconYT.png">
-  <meta name="theme-color" content="#0b0e14">
+  <meta name="theme-color" content="#ffd700">
   <link rel="manifest" href="manifest.json">
 
   <style>
     :root {
-      --bg: #0b0e14;
-      --card-bg: #151921;
-      --border: #232936;
-      --accent: #e50914;
-      --accent-hover: #ff1e27;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --success: #10b981;
-      --secondary: #3b82f6;
+      --bg-main: #0a0b0d;
+      --bg-card: #121418;
+      --bg-input: #1a1d24;
+      --border: #2a2e38;
+      --yellow-primary: #ffd700;
+      --yellow-hover: #ffea00;
+      --yellow-subtle: rgba(255, 215, 0, 0.12);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --error-bg: rgba(239, 68, 68, 0.15);
+      --error-border: #ef4444;
+      --error-text: #fca5a5;
+      --success: #22c55e;
     }
 
     * {
@@ -31,8 +35,8 @@
     }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: var(--bg-main);
+      color: var(--text-main);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -42,31 +46,35 @@
 
     .container {
       width: 100%;
-      max-width: 720px;
-      background: var(--card-bg);
+      max-width: 760px;
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
     }
 
     header {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
     }
 
     .app-icon {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 12px;
-      border-radius: 12px;
+      width: 72px;
+      height: 72px;
+      margin-bottom: 14px;
+      border-radius: 16px;
+      border: 2px solid var(--yellow-primary);
+      padding: 4px;
+      background: var(--bg-main);
     }
 
     header h1 {
       font-size: 2.2rem;
       font-weight: 800;
-      letter-spacing: -0.5px;
+      color: var(--yellow-primary);
       margin-bottom: 8px;
+      letter-spacing: -0.5px;
     }
 
     header p {
@@ -76,56 +84,62 @@
 
     .install-bar {
       display: none;
-      background: rgba(229, 9, 20, 0.15);
-      border: 1px solid var(--accent);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 20px;
+      background: var(--yellow-subtle);
+      border: 1px solid var(--yellow-primary);
+      border-radius: 12px;
+      padding: 12px 18px;
+      margin-bottom: 24px;
       align-items: center;
       justify-content: space-between;
     }
 
-    .install-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 14px;
-      font-size: 0.85rem;
+    .install-bar span {
+      font-size: 0.9rem;
       font-weight: 600;
+      color: var(--yellow-primary);
+    }
+
+    .install-btn {
+      background: var(--yellow-primary);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
     }
 
-    .input-group {
+    .input-section {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 20px;
     }
 
     input[type="text"] {
       flex: 1;
-      background: var(--bg);
+      background: var(--bg-input);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 18px;
-      color: var(--text);
+      border-radius: 12px;
+      padding: 16px 20px;
+      color: var(--text-main);
       font-size: 0.95rem;
       outline: none;
       transition: border-color 0.2s;
     }
 
     input[type="text"]:focus {
-      border-color: var(--accent);
+      border-color: var(--yellow-primary);
     }
 
-    button {
-      background: var(--accent);
-      color: #fff;
+    button.process-btn {
+      background: var(--yellow-primary);
+      color: #000;
       border: none;
-      border-radius: 10px;
-      padding: 0 24px;
-      font-weight: 600;
-      font-size: 1rem;
+      border-radius: 12px;
+      padding: 0 28px;
+      font-weight: 800;
+      font-size: 0.95rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -134,8 +148,8 @@
       transition: background 0.2s, transform 0.1s;
     }
 
-    button:hover {
-      background: var(--accent-hover);
+    button.process-btn:hover {
+      background: var(--yellow-hover);
     }
 
     button:disabled {
@@ -143,146 +157,156 @@
       cursor: not-allowed;
     }
 
-    .controls-grid {
+    .options-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 24px;
     }
 
-    .select-box {
+    .option-box {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .select-box label {
+    .option-box label {
       font-size: 0.8rem;
-      color: var(--text-muted);
+      color: var(--yellow-primary);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
+      letter-spacing: 0.8px;
+      font-weight: 700;
     }
 
     select {
-      background: var(--bg);
+      background: var(--bg-input);
       border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px;
-      border-radius: 8px;
-      outline: none;
-      font-size: 0.9rem;
-    }
-
-    .status-card {
-      display: none;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 16px;
-    }
-
-    .media-header {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .thumb-preview {
-      width: 128px;
-      height: 72px;
-      border-radius: 8px;
-      object-fit: cover;
-      background: var(--border);
-    }
-
-    .media-info {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .media-info h3 {
-      font-size: 1rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 4px;
-    }
-
-    .media-info p {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: var(--accent);
-      transition: width 0.4s ease;
-    }
-
-    audio {
-      width: 100%;
-      margin-bottom: 16px;
-      height: 40px;
-    }
-
-    .action-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    .download-action {
-      flex: 1;
+      color: var(--text-main);
       padding: 12px;
-      background: var(--success);
-      color: #000;
-      text-decoration: none;
-      text-align: center;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .thumb-action {
-      padding: 12px 18px;
-      background: var(--secondary);
-      color: #fff;
-      text-decoration: none;
-      text-align: center;
-      border-radius: 8px;
-      font-weight: 600;
+      border-radius: 10px;
+      outline: none;
       font-size: 0.9rem;
     }
 
     .alert {
       display: none;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      margin-bottom: 16px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
       text-align: center;
-      background: rgba(229, 9, 20, 0.15);
-      border: 1px solid var(--accent);
-      color: #ff6b6b;
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    .status-card {
+      display: none;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+
+    .media-info {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .media-thumb {
+      width: 120px;
+      height: 70px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .media-details {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .media-details h3 {
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--yellow-subtle);
+      border: 1px solid var(--yellow-primary);
+      color: var(--yellow-primary);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--yellow-primary);
+      transition: width 0.3s ease;
+    }
+
+    audio {
+      width: 100%;
+      margin-bottom: 18px;
+      height: 42px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .download-btn {
+      flex: 2;
+      padding: 14px;
+      background: var(--yellow-primary);
+      color: #000;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .thumb-btn {
+      flex: 1;
+      padding: 14px;
+      background: var(--bg-main);
+      border: 1px solid var(--yellow-primary);
+      color: var(--yellow-primary);
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
     }
 
     .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #000;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -292,9 +316,9 @@
     }
 
     @media (max-width: 600px) {
-      .controls-grid { grid-template-columns: 1fr; }
-      .input-group { flex-direction: column; }
-      .action-group { flex-direction: column; }
+      .options-grid { grid-template-columns: 1fr; }
+      .input-section { flex-direction: column; }
+      .action-row { flex-direction: column; }
     }
   </style>
 </head>
@@ -302,36 +326,39 @@
 
   <div class="container">
     <header>
-      <img src="arts/iconYT.png" alt="App Icon" class="app-icon">
-      <h1>MP3 Extractor Pro</h1>
-      <p>High-performance YouTube audio & thumbnail downloader</p>
+      <img src="arts/iconYT.png" alt="App Icon" class="app-icon" onerror="this.style.display='none'">
+      <h1>MP3 Downloader Pro</h1>
+      <p>Universal multi-engine audio & stream extractor</p>
     </header>
 
     <div id="installBar" class="install-bar">
-      <span>Install app on your device</span>
+      <span>Install App on Device</span>
       <button id="pwaInstallBtn" class="install-btn">Install</button>
     </div>
 
-    <div class="input-group">
-      <input type="text" id="urlInput" placeholder="Paste YouTube link (e.g. https://youtu.be/...)" autocomplete="off">
-      <button id="processBtn">Extract Audio</button>
+    <div class="input-section">
+      <input type="text" id="urlInput" placeholder="Paste link (YouTube, SoundCloud, Direct MP3...)" autocomplete="off">
+      <button id="processBtn" class="process-btn">Extract Audio</button>
     </div>
 
-    <div class="controls-grid">
-      <div class="select-box">
-        <label for="format">Preferred Audio Format</label>
+    <div class="options-grid">
+      <div class="option-box">
+        <label for="format">Target Format</label>
         <select id="format">
-          <option value="mp3">MP3 / AAC</option>
-          <option value="m4a">M4A</option>
+          <option value="mp3">MP3 (Universal)</option>
+          <option value="m4a">M4A (AAC)</option>
           <option value="opus">OPUS</option>
+          <option value="wav">WAV</option>
         </select>
       </div>
 
-      <div class="select-box">
-        <label for="quality">Audio Quality Target</label>
-        <select id="quality">
-          <option value="high">Best Available</option>
-          <option value="medium">Medium</option>
+      <div class="option-box">
+        <label for="bitrate">Bitrate Quality</label>
+        <select id="bitrate">
+          <option value="320">320 kbps (HQ)</option>
+          <option value="256">256 kbps</option>
+          <option value="192" selected>192 kbps</option>
+          <option value="128">128 kbps</option>
         </select>
       </div>
     </div>
@@ -339,11 +366,11 @@
     <div id="alertBox" class="alert"></div>
 
     <div id="statusCard" class="status-card">
-      <div class="media-header">
-        <img id="thumbImg" class="thumb-preview" src="" alt="Thumbnail">
-        <div class="media-info">
-          <h3 id="mediaTitle">Parsing video stream...</h3>
-          <p id="mediaDetails">Status: Processing audio pipeline</p>
+      <div class="media-info">
+        <img id="mediaThumb" class="media-thumb" src="" alt="Thumbnail">
+        <div class="media-details">
+          <h3 id="mediaTitle">Detecting audio source...</h3>
+          <span id="typeBadge" class="badge">INITIALIZING</span>
         </div>
       </div>
 
@@ -353,12 +380,12 @@
 
       <audio id="audioElement" controls style="display: none;"></audio>
 
-      <div class="action-group">
-        <a id="downloadBtn" class="download-action" href="#" target="_blank" download style="display: none;">
+      <div class="action-row">
+        <a id="downloadBtn" class="download-btn" href="#" target="_blank" download style="display: none;">
           Download Audio
         </a>
-        <a id="thumbBtn" class="thumb-action" href="#" target="_blank" download style="display: none;">
-          Get Thumbnail
+        <a id="thumbBtn" class="thumb-btn" href="#" target="_blank" download style="display: none;">
+          Thumbnail
         </a>
       </div>
     </div>
@@ -395,27 +422,34 @@
     const alertBox = document.getElementById('alertBox');
     const statusCard = document.getElementById('statusCard');
     const progressFill = document.getElementById('progressFill');
-    const thumbImg = document.getElementById('thumbImg');
+    const mediaThumb = document.getElementById('mediaThumb');
     const mediaTitle = document.getElementById('mediaTitle');
-    const mediaDetails = document.getElementById('mediaDetails');
+    const typeBadge = document.getElementById('typeBadge');
     const audioElement = document.getElementById('audioElement');
     const downloadBtn = document.getElementById('downloadBtn');
     const thumbBtn = document.getElementById('thumbBtn');
 
-    const INVIDIOUS_NODES = [
+    const ENGINE_APIS = [
+      'https://api.cobalt.tools/api/json',
+      'https://cobalt.api.scrapes.pro/api/json'
+    ];
+
+    const INVIDIOUS_MIRRORS = [
       'https://inv.riverside.rocks',
       'https://invidious.nerdvpn.de',
-      'https://invidious.drgns.space',
       'https://vid.puffyan.us'
     ];
 
-    function parseYouTubeID(url) {
-      const pattern = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
-      const match = url.match(pattern);
+    function extractYouTubeId(url) {
+      const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
       return match ? match[1] : null;
     }
 
-    function displayError(msg) {
+    function isDirectAudioUrl(url) {
+      return /\.(mp3|wav|m4a|ogg|opus|flac)(\?.*)?$/i.test(url);
+    }
+
+    function showError(msg) {
       alertBox.innerText = msg;
       alertBox.style.display = 'block';
       processBtn.disabled = false;
@@ -431,64 +465,127 @@
       progressFill.style.width = '0%';
     }
 
-    async function fetchStreamWithFallback(videoId) {
-      for (const node of INVIDIOUS_NODES) {
+    async function processCobaltEngine(targetUrl, format, bitrate) {
+      for (const endpoint of ENGINE_APIS) {
         try {
-          const res = await fetch(`${node}/api/v1/videos/${videoId}`, { signal: AbortSignal.timeout(5000) });
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              url: targetUrl,
+              audioFormat: format,
+              audioBitrate: bitrate,
+              isAudioOnly: true
+            }),
+            signal: AbortSignal.timeout(6000)
+          });
+
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (data.status === 'stream' || data.status === 'redirect') {
+            return data.url;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      return null;
+    }
+
+    async function processInvidiousFallback(ytId) {
+      for (const mirror of INVIDIOUS_MIRRORS) {
+        try {
+          const res = await fetch(`${mirror}/api/v1/videos/${ytId}`, { signal: AbortSignal.timeout(5000) });
           if (!res.ok) continue;
           const data = await res.json();
           if (data && data.adaptiveFormats) {
-            const audioStreams = data.adaptiveFormats.filter(item => item.type && item.type.includes('audio'));
-            if (audioStreams.length > 0) {
-              return {
-                title: data.title || videoId,
-                streamUrl: audioStreams[0].url
-              };
+            const track = data.adaptiveFormats.find(f => f.type && f.type.includes('audio'));
+            if (track && track.url) {
+              return { url: track.url, title: data.title };
             }
           }
         } catch (e) {
           continue;
         }
       }
-      throw new Error('All primary extraction nodes are busy. Try again in a few moments.');
+      return null;
     }
 
-    async function executeExtraction() {
+    async function handleExtraction() {
       resetState();
-      const rawUrl = urlInput.value.trim();
-      const videoId = parseYouTubeID(rawUrl);
+      const inputUrl = urlInput.value.trim();
 
-      if (!videoId) {
-        displayError('Invalid YouTube URL. Please check the link structure.');
+      if (!inputUrl) {
+        showError('Please enter a media URL.');
         return;
       }
 
       processBtn.disabled = true;
-      processBtn.innerHTML = '<div class="spinner"></div> Processing...';
-
-      const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      thumbImg.src = thumbUrl;
-      mediaTitle.innerText = `Resolving YouTube ID: ${videoId}`;
-      mediaDetails.innerText = 'Connecting to fallback proxy network...';
+      processBtn.innerHTML = '<div class="spinner"></div> Extracting...';
       statusCard.style.display = 'block';
-      progressFill.style.width = '35%';
+      progressFill.style.width = '20%';
 
-      thumbBtn.href = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-      thumbBtn.style.display = 'block';
+      const selectedFormat = document.getElementById('format').value;
+      const selectedBitrate = document.getElementById('bitrate').value;
 
-      try {
-        progressFill.style.width = '65%';
-        const result = await fetchStreamWithFallback(videoId);
+      const ytId = extractYouTubeId(inputUrl);
 
+      if (isDirectAudioUrl(inputUrl)) {
+        typeBadge.innerText = 'DIRECT AUDIO';
+        mediaTitle.innerText = 'Direct Media Stream';
+        mediaThumb.src = 'arts/iconYT.png';
         progressFill.style.width = '100%';
-        mediaTitle.innerText = result.title;
-        mediaDetails.innerText = 'Audio stream extracted successfully.';
 
-        audioElement.src = result.streamUrl;
+        audioElement.src = inputUrl;
         audioElement.style.display = 'block';
 
-        downloadBtn.href = result.streamUrl;
-        downloadBtn.setAttribute('download', `${result.title}.mp3`);
+        downloadBtn.href = inputUrl;
+        downloadBtn.style.display = 'block';
+
+        processBtn.disabled = false;
+        processBtn.innerHTML = 'Extract Audio';
+        return;
+      }
+
+      if (ytId) {
+        typeBadge.innerText = 'YOUTUBE MEDIA';
+        mediaThumb.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+        thumbBtn.href = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
+        thumbBtn.style.display = 'block';
+      } else {
+        typeBadge.innerText = 'EXTERNAL STREAM';
+        mediaThumb.src = 'arts/iconYT.png';
+      }
+
+      progressFill.style.width = '50%';
+
+      try {
+        let finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, selectedBitrate);
+
+        if (!finalStreamUrl && ytId) {
+          typeBadge.innerText = 'FALLBACK NODE';
+          const fallbackData = await processInvidiousFallback(ytId);
+          if (fallbackData) {
+            finalStreamUrl = fallbackData.url;
+            mediaTitle.innerText = fallbackData.title;
+          }
+        }
+
+        if (!finalStreamUrl) {
+          throw new Error('All primary audio nodes failed to process this link.');
+        }
+
+        progressFill.style.width = '100%';
+        if (!ytId) mediaTitle.innerText = 'Extracted Audio File';
+
+        audioElement.src = finalStreamUrl;
+        audioElement.style.display = 'block';
+
+        downloadBtn.href = finalStreamUrl;
+        downloadBtn.setAttribute('download', `audio.${selectedFormat}`);
         downloadBtn.style.display = 'block';
 
         processBtn.disabled = false;
@@ -496,13 +593,13 @@
 
       } catch (err) {
         statusCard.style.display = 'none';
-        displayError(err.message);
+        showError(err.message || 'Failed to establish audio connection.');
       }
     }
 
-    processBtn.addEventListener('click', executeExtraction);
+    processBtn.addEventListener('click', handleExtraction);
     urlInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') executeExtraction();
+      if (e.key === 'Enter') handleExtraction();
     });
   </script>
 </body>
