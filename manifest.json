@@ -1,24 +1,31 @@
 {
-  "name": "MP3 Extractor Pro",
-  "short_name": "MP3 Extractor",
-  "description": "Extract and download high-quality audio from YouTube videos.",
+  "name": "MP3Downloader",
+  "short_name": "MP3Downloader",
+  "description": "Multi-engine audio extractor for YouTube and direct streams",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0b0e14",
-  "theme_color": "#0b0e14",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
+  "background_color": "#0a0b0d",
+  "theme_color": "#ffd700",
   "icons": [
     {
       "src": "arts/iconYT.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "arts/iconYT.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "arts/iconYT.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
