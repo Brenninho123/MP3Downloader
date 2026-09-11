@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="arts/iconYT.png">
   <meta name="theme-color" content="#0b0e14">
 
-  <link rel="manifest" id="manifestPlaceholder">
+  <link rel="manifest" href="manifest.json">
 
   <style>
     :root {
@@ -367,48 +367,10 @@
   </div>
 
   <script>
-    const manifestData = {
-      "name": "MP3 Downloader Pro",
-      "short_name": "MP3 Downloader",
-      "start_url": "./",
-      "display": "standalone",
-      "background_color": "#0b0e14",
-      "theme_color": "#0b0e14",
-      "icons": [
-        {
-          "src": "arts/iconYT.png",
-          "sizes": "192x192",
-          "type": "image/png",
-          "purpose": "any maskable"
-        },
-        {
-          "src": "arts/iconYT.png",
-          "sizes": "512x512",
-          "type": "image/png",
-          "purpose": "any maskable"
-        }
-      ]
-    };
-
-    const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-    document.getElementById('manifestPlaceholder').setAttribute('href', URL.createObjectURL(manifestBlob));
-
     if ('serviceWorker' in navigator) {
-      const swCode = `
-        const CACHE_NAME = 'mp3-downloader-v1';
-        self.addEventListener('install', (e) => {
-          e.waitUntil(
-            caches.open(CACHE_NAME).then((cache) => cache.addAll(['./', 'arts/iconYT.png']))
-          );
-        });
-        self.addEventListener('fetch', (e) => {
-          e.respondWith(
-            caches.match(e.request).then((res) => res || fetch(e.request))
-          );
-        });
-      `;
-      const swBlob = new Blob([swCode], { type: 'text/javascript' });
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+      });
     }
 
     let deferredPrompt;
