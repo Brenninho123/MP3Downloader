@@ -635,7 +635,7 @@
 
     <div id="settingsPanel" class="settings-panel">
       <p class="hint">
-        Public download engines (cobalt.tools, Invidious mirrors) are not meant for third-party sites and are frequently blocked, rate-limited, or shut down. The reliable option is pointing this app at your own self-hosted Cobalt instance. Your instance URL and key are stored only in this browser.
+        Public download engines (cobalt.tools, Invidious mirrors) are not meant for third-party sites: they use bot protection and can start blocking this app's requests at any time, even if it works today. The reliable option is pointing this app at your own self-hosted Cobalt instance. Your instance URL and key are stored only in this browser. Note: the community Cobalt API does not accept a custom bitrate, only a format, so the bitrate field above is a label only.
       </p>
       <label for="instanceUrlInput">Self-hosted Cobalt instance URL</label>
       <input type="text" id="instanceUrlInput" placeholder="https://your-instance.up.railway.app">
@@ -679,12 +679,12 @@
       </div>
 
       <div class="option-box">
-        <label for="bitrate">Bitrate preference</label>
+        <label for="bitrate">Bitrate label (cosmetic)</label>
         <select id="bitrate">
-          <option value="320">320 kbps (if supported)</option>
-          <option value="256">256 kbps (if supported)</option>
-          <option value="192" selected>192 kbps (if supported)</option>
-          <option value="128">128 kbps (if supported)</option>
+          <option value="320">320 kbps</option>
+          <option value="256">256 kbps</option>
+          <option value="192" selected>192 kbps</option>
+          <option value="128">128 kbps</option>
         </select>
       </div>
     </div>
@@ -1014,7 +1014,7 @@
       return candidates;
     }
 
-    async function callCobaltInstance(candidate, targetUrl, format, bitrate, errorLog) {
+    async function callCobaltInstance(candidate, targetUrl, format, errorLog) {
       const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -1030,8 +1030,7 @@
           body: JSON.stringify({
             url: targetUrl,
             isAudioOnly: true,
-            aFormat: format === 'best' ? 'best' : format,
-            audioBitrate: bitrate,
+            aFormat: format,
             filenamePattern: 'basic'
           }),
           signal: AbortSignal.timeout(10000)
@@ -1074,10 +1073,10 @@
       }
     }
 
-    async function processCobaltEngine(targetUrl, format, bitrate, errorLog) {
+    async function processCobaltEngine(targetUrl, format, errorLog) {
       const candidates = buildCobaltCandidates();
       for (const candidate of candidates) {
-        const result = await callCobaltInstance(candidate, targetUrl, format, bitrate, errorLog);
+        const result = await callCobaltInstance(candidate, targetUrl, format, errorLog);
         if (result) return result;
       }
       return null;
@@ -1273,9 +1272,10 @@
         }
 
         setStage(45, 'Contacting audio engines');
+        const canonicalYouTubeUrl = `https://www.youtube.com/watch?v=${ytId}`;
 
         try {
-          let finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, selectedBitrate, errorLog);
+          let finalStreamUrl = await processCobaltEngine(canonicalYouTubeUrl, selectedFormat, errorLog);
 
           if (!finalStreamUrl) {
             setStage(70, 'Trying fallback nodes');
@@ -1332,7 +1332,7 @@
       setStage(40, 'Contacting audio engines');
 
       try {
-        const finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, selectedBitrate, errorLog);
+        const finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, errorLog);
 
         if (!finalStreamUrl) {
           const hasCustom = !!loadEngineConfig();
