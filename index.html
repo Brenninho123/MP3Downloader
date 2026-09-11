@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Universal MP3 & Audio Downloader Pro</title>
+  <title>MP3Downloader</title>
 
   <link rel="icon" type="image/png" href="arts/iconYT.png">
   <link rel="apple-touch-icon" href="arts/iconYT.png">
@@ -15,6 +15,7 @@
       --bg-main: #0a0b0d;
       --bg-card: #121418;
       --bg-input: #1a1d24;
+      --bg-raised: #1e2129;
       --border: #2a2e38;
       --yellow-primary: #ffd700;
       --yellow-hover: #ffea00;
@@ -24,7 +25,9 @@
       --error-bg: rgba(239, 68, 68, 0.15);
       --error-border: #ef4444;
       --error-text: #fca5a5;
-      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.15);
+      --success-border: #22c55e;
+      --success-text: #86efac;
     }
 
     * {
@@ -39,14 +42,14 @@
       color: var(--text-main);
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       min-height: 100vh;
-      padding: 20px;
+      padding: 40px 20px;
     }
 
     .container {
       width: 100%;
-      max-width: 760px;
+      max-width: 780px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -112,7 +115,7 @@
 
     .input-section {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 20px;
     }
 
@@ -132,6 +135,17 @@
       border-color: var(--yellow-primary);
     }
 
+    button.icon-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--yellow-primary);
+      border-radius: 12px;
+      padding: 0 18px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
     button.process-btn {
       background: var(--yellow-primary);
       color: #000;
@@ -145,7 +159,8 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s;
+      white-space: nowrap;
     }
 
     button.process-btn:hover {
@@ -173,8 +188,7 @@
     .option-box label {
       font-size: 0.8rem;
       color: var(--yellow-primary);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.4px;
       font-weight: 700;
     }
 
@@ -235,8 +249,17 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       color: var(--text-main);
+    }
+
+    .media-details p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
     }
 
     .badge {
@@ -246,7 +269,7 @@
       border: 1px solid var(--yellow-primary);
       color: var(--yellow-primary);
       border-radius: 6px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
     }
 
@@ -256,7 +279,7 @@
       background: var(--border);
       border-radius: 4px;
       overflow: hidden;
-      margin-bottom: 18px;
+      margin-bottom: 10px;
     }
 
     .progress-fill {
@@ -264,6 +287,12 @@
       height: 100%;
       background: var(--yellow-primary);
       transition: width 0.3s ease;
+    }
+
+    .stage-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
     }
 
     audio {
@@ -315,6 +344,92 @@
       to { transform: rotate(360deg); }
     }
 
+    .history-section {
+      margin-top: 28px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .history-header h2 {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .history-header button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .history-item img {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--border);
+    }
+
+    .history-item .info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .history-item .info p {
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item .info span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .history-item button {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--yellow-primary);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .empty-history {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 16px 0;
+    }
+
     @media (max-width: 600px) {
       .options-grid { grid-template-columns: 1fr; }
       .input-section { flex-direction: column; }
@@ -327,8 +442,8 @@
   <div class="container">
     <header>
       <img src="arts/iconYT.png" alt="App Icon" class="app-icon" onerror="this.style.display='none'">
-      <h1>MP3 Downloader Pro</h1>
-      <p>Universal multi-engine audio & stream extractor</p>
+      <h1>MP3Downloader</h1>
+      <p>Multi-engine audio extractor for YouTube and direct streams</p>
     </header>
 
     <div id="installBar" class="install-bar">
@@ -337,28 +452,31 @@
     </div>
 
     <div class="input-section">
-      <input type="text" id="urlInput" placeholder="Paste link (YouTube, SoundCloud, Direct MP3...)" autocomplete="off">
+      <input type="text" id="urlInput" placeholder="Paste any YouTube link, video ID, or direct audio URL" autocomplete="off">
+      <button id="pasteBtn" class="icon-btn" type="button">Paste</button>
       <button id="processBtn" class="process-btn">Extract Audio</button>
     </div>
 
     <div class="options-grid">
       <div class="option-box">
-        <label for="format">Target Format</label>
+        <label for="format">Target format</label>
         <select id="format">
-          <option value="mp3">MP3 (Universal)</option>
+          <option value="mp3">MP3 (universal)</option>
           <option value="m4a">M4A (AAC)</option>
           <option value="opus">OPUS</option>
           <option value="wav">WAV</option>
+          <option value="flac">FLAC</option>
         </select>
       </div>
 
       <div class="option-box">
-        <label for="bitrate">Bitrate Quality</label>
+        <label for="bitrate">Bitrate quality</label>
         <select id="bitrate">
-          <option value="320">320 kbps (HQ)</option>
+          <option value="320">320 kbps (highest)</option>
           <option value="256">256 kbps</option>
           <option value="192" selected>192 kbps</option>
           <option value="128">128 kbps</option>
+          <option value="96">96 kbps (smallest)</option>
         </select>
       </div>
     </div>
@@ -370,6 +488,7 @@
         <img id="mediaThumb" class="media-thumb" src="" alt="Thumbnail">
         <div class="media-details">
           <h3 id="mediaTitle">Detecting audio source...</h3>
+          <p id="mediaChannel"></p>
           <span id="typeBadge" class="badge">INITIALIZING</span>
         </div>
       </div>
@@ -377,6 +496,7 @@
       <div class="progress-track">
         <div id="progressFill" class="progress-fill"></div>
       </div>
+      <div id="stageLabel" class="stage-label"></div>
 
       <audio id="audioElement" controls style="display: none;"></audio>
 
@@ -388,6 +508,14 @@
           Thumbnail
         </a>
       </div>
+    </div>
+
+    <div class="history-section">
+      <div class="history-header">
+        <h2>Recent extractions</h2>
+        <button id="clearHistoryBtn" type="button">Clear</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
     </div>
   </div>
 
@@ -411,38 +539,63 @@
     pwaInstallBtn.addEventListener('click', async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') installBar.style.display = 'none';
+        const choice = await deferredPrompt.userChoice;
+        if (choice.outcome === 'accepted') installBar.style.display = 'none';
         deferredPrompt = null;
       }
     });
 
     const processBtn = document.getElementById('processBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
     const urlInput = document.getElementById('urlInput');
     const alertBox = document.getElementById('alertBox');
     const statusCard = document.getElementById('statusCard');
     const progressFill = document.getElementById('progressFill');
+    const stageLabel = document.getElementById('stageLabel');
     const mediaThumb = document.getElementById('mediaThumb');
     const mediaTitle = document.getElementById('mediaTitle');
+    const mediaChannel = document.getElementById('mediaChannel');
     const typeBadge = document.getElementById('typeBadge');
     const audioElement = document.getElementById('audioElement');
     const downloadBtn = document.getElementById('downloadBtn');
     const thumbBtn = document.getElementById('thumbBtn');
+    const historyList = document.getElementById('historyList');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
     const ENGINE_APIS = [
       'https://api.cobalt.tools/api/json',
-      'https://cobalt.api.scrapes.pro/api/json'
+      'https://cobalt.api.scrapes.pro/api/json',
+      'https://dwnld.nichind.dev/api/json'
     ];
 
     const INVIDIOUS_MIRRORS = [
       'https://inv.riverside.rocks',
       'https://invidious.nerdvpn.de',
-      'https://vid.puffyan.us'
+      'https://vid.puffyan.us',
+      'https://yt.artemislena.eu',
+      'https://invidious.jing.rocks'
     ];
 
-    function extractYouTubeId(url) {
-      const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-      return match ? match[1] : null;
+    const HISTORY_KEY = 'mp3downloader_history';
+    const MAX_HISTORY = 8;
+
+    function extractYouTubeId(rawUrl) {
+      const trimmed = rawUrl.trim();
+      if (/^[\w-]{11}$/.test(trimmed)) return trimmed;
+
+      const patterns = [
+        /(?:https?:\/\/)?(?:[\w-]+\.)?youtube(?:-nocookie)?\.com\/watch\?(?:[^#]*&)?v=([\w-]{11})/i,
+        /(?:https?:\/\/)?(?:[\w-]+\.)?youtube(?:-nocookie)?\.com\/(?:embed|v|shorts|live)\/([\w-]{11})/i,
+        /(?:https?:\/\/)?youtu\.be\/([\w-]{11})/i,
+        /(?:https?:\/\/)?(?:[\w-]+\.)?youtube\.com\/attribution_link.*[?&]v=([\w-]{11})/i,
+        /(?:https?:\/\/)?(?:[\w-]+\.)?youtube\.com\/oembed\?url=.*v%3D([\w-]{11})/i
+      ];
+
+      for (const pattern of patterns) {
+        const match = trimmed.match(pattern);
+        if (match) return match[1];
+      }
+      return null;
     }
 
     function isDirectAudioUrl(url) {
@@ -452,6 +605,10 @@
     function showError(msg) {
       alertBox.innerText = msg;
       alertBox.style.display = 'block';
+      resetButton();
+    }
+
+    function resetButton() {
       processBtn.disabled = false;
       processBtn.innerHTML = 'Extract Audio';
     }
@@ -463,6 +620,25 @@
       downloadBtn.style.display = 'none';
       thumbBtn.style.display = 'none';
       progressFill.style.width = '0%';
+      stageLabel.innerText = '';
+      mediaChannel.innerText = '';
+    }
+
+    function setStage(percent, label) {
+      progressFill.style.width = percent + '%';
+      stageLabel.innerText = label;
+    }
+
+    async function fetchYouTubeMeta(ytId) {
+      try {
+        const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${ytId}&format=json`;
+        const res = await fetch(oembedUrl, { signal: AbortSignal.timeout(5000) });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return { title: data.title, author: data.author_name };
+      } catch (e) {
+        return null;
+      }
     }
 
     async function processCobaltEngine(targetUrl, format, bitrate) {
@@ -480,12 +656,15 @@
               audioBitrate: bitrate,
               isAudioOnly: true
             }),
-            signal: AbortSignal.timeout(6000)
+            signal: AbortSignal.timeout(8000)
           });
 
           if (!res.ok) continue;
           const data = await res.json();
           if (data.status === 'stream' || data.status === 'redirect') {
+            return data.url;
+          }
+          if (data.status === 'tunnel' && data.url) {
             return data.url;
           }
         } catch (e) {
@@ -498,13 +677,14 @@
     async function processInvidiousFallback(ytId) {
       for (const mirror of INVIDIOUS_MIRRORS) {
         try {
-          const res = await fetch(`${mirror}/api/v1/videos/${ytId}`, { signal: AbortSignal.timeout(5000) });
+          const res = await fetch(`${mirror}/api/v1/videos/${ytId}`, { signal: AbortSignal.timeout(6000) });
           if (!res.ok) continue;
           const data = await res.json();
           if (data && data.adaptiveFormats) {
-            const track = data.adaptiveFormats.find(f => f.type && f.type.includes('audio'));
-            if (track && track.url) {
-              return { url: track.url, title: data.title };
+            const audioTracks = data.adaptiveFormats.filter(f => f.type && f.type.includes('audio'));
+            if (audioTracks.length) {
+              audioTracks.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+              return { url: audioTracks[0].url, title: data.title, author: data.author };
             }
           }
         } catch (e) {
@@ -513,6 +693,77 @@
       }
       return null;
     }
+
+    function loadHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveToHistory(entry) {
+      const items = loadHistory();
+      items.unshift(entry);
+      const trimmed = items.slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const items = loadHistory();
+      historyList.innerHTML = '';
+
+      if (!items.length) {
+        historyList.innerHTML = '<div class="empty-history">No extractions yet.</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'history-item';
+
+        const img = document.createElement('img');
+        img.src = item.thumb || 'arts/iconYT.png';
+        img.alt = '';
+
+        const info = document.createElement('div');
+        info.className = 'info';
+        const titleEl = document.createElement('p');
+        titleEl.innerText = item.title;
+        const metaEl = document.createElement('span');
+        metaEl.innerText = `${item.format.toUpperCase()} · ${item.bitrate} kbps`;
+        info.appendChild(titleEl);
+        info.appendChild(metaEl);
+
+        const openBtn = document.createElement('button');
+        openBtn.innerText = 'Open';
+        openBtn.type = 'button';
+        openBtn.addEventListener('click', () => {
+          urlInput.value = item.sourceUrl;
+          handleExtraction();
+        });
+
+        row.appendChild(img);
+        row.appendChild(info);
+        row.appendChild(openBtn);
+        historyList.appendChild(row);
+      });
+    }
+
+    clearHistoryBtn.addEventListener('click', () => {
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+    });
+
+    pasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) urlInput.value = text.trim();
+      } catch (e) {
+        showError('Clipboard access was blocked by the browser.');
+      }
+    });
 
     async function handleExtraction() {
       resetState();
@@ -526,18 +777,18 @@
       processBtn.disabled = true;
       processBtn.innerHTML = '<div class="spinner"></div> Extracting...';
       statusCard.style.display = 'block';
-      progressFill.style.width = '20%';
+      setStage(15, 'Reading the link');
 
       const selectedFormat = document.getElementById('format').value;
       const selectedBitrate = document.getElementById('bitrate').value;
 
       const ytId = extractYouTubeId(inputUrl);
 
-      if (isDirectAudioUrl(inputUrl)) {
+      if (isDirectAudioUrl(inputUrl) && !ytId) {
         typeBadge.innerText = 'DIRECT AUDIO';
         mediaTitle.innerText = 'Direct Media Stream';
         mediaThumb.src = 'arts/iconYT.png';
-        progressFill.style.width = '100%';
+        setStage(100, 'Ready');
 
         audioElement.src = inputUrl;
         audioElement.style.display = 'block';
@@ -545,51 +796,78 @@
         downloadBtn.href = inputUrl;
         downloadBtn.style.display = 'block';
 
-        processBtn.disabled = false;
-        processBtn.innerHTML = 'Extract Audio';
+        saveToHistory({
+          title: 'Direct Media Stream',
+          thumb: 'arts/iconYT.png',
+          format: selectedFormat,
+          bitrate: selectedBitrate,
+          sourceUrl: inputUrl
+        });
+
+        resetButton();
         return;
       }
 
-      if (ytId) {
-        typeBadge.innerText = 'YOUTUBE MEDIA';
-        mediaThumb.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-        thumbBtn.href = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
-        thumbBtn.style.display = 'block';
-      } else {
-        typeBadge.innerText = 'EXTERNAL STREAM';
-        mediaThumb.src = 'arts/iconYT.png';
+      if (!ytId) {
+        showError('This link could not be recognized as a YouTube video or a direct audio file.');
+        statusCard.style.display = 'none';
+        return;
       }
 
-      progressFill.style.width = '50%';
+      typeBadge.innerText = 'YOUTUBE MEDIA';
+      mediaThumb.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+      thumbBtn.href = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
+      thumbBtn.style.display = 'block';
+
+      setStage(30, 'Fetching video details');
+      const meta = await fetchYouTubeMeta(ytId);
+      if (meta) {
+        mediaTitle.innerText = meta.title;
+        mediaChannel.innerText = meta.author || '';
+      } else {
+        mediaTitle.innerText = `YouTube video ${ytId}`;
+      }
+
+      setStage(55, 'Contacting audio engines');
 
       try {
         let finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, selectedBitrate);
 
-        if (!finalStreamUrl && ytId) {
+        if (!finalStreamUrl) {
+          setStage(75, 'Trying fallback nodes');
           typeBadge.innerText = 'FALLBACK NODE';
           const fallbackData = await processInvidiousFallback(ytId);
           if (fallbackData) {
             finalStreamUrl = fallbackData.url;
-            mediaTitle.innerText = fallbackData.title;
+            if (!meta) {
+              mediaTitle.innerText = fallbackData.title || mediaTitle.innerText;
+              mediaChannel.innerText = fallbackData.author || '';
+            }
           }
         }
 
         if (!finalStreamUrl) {
-          throw new Error('All primary audio nodes failed to process this link.');
+          throw new Error('All audio nodes failed to process this link. Try again in a moment.');
         }
 
-        progressFill.style.width = '100%';
-        if (!ytId) mediaTitle.innerText = 'Extracted Audio File';
+        setStage(100, 'Ready');
 
         audioElement.src = finalStreamUrl;
         audioElement.style.display = 'block';
 
         downloadBtn.href = finalStreamUrl;
-        downloadBtn.setAttribute('download', `audio.${selectedFormat}`);
+        downloadBtn.setAttribute('download', `${mediaTitle.innerText}.${selectedFormat}`);
         downloadBtn.style.display = 'block';
 
-        processBtn.disabled = false;
-        processBtn.innerHTML = 'Extract Audio';
+        saveToHistory({
+          title: mediaTitle.innerText,
+          thumb: mediaThumb.src,
+          format: selectedFormat,
+          bitrate: selectedBitrate,
+          sourceUrl: inputUrl
+        });
+
+        resetButton();
 
       } catch (err) {
         statusCard.style.display = 'none';
@@ -601,6 +879,8 @@
     urlInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') handleExtraction();
     });
+
+    renderHistory();
   </script>
 </body>
 </html>
