@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube to MP3 Converter</title>
+  <title>YouTube to MP3 Converter - Advanced</title>
   <style>
     :root {
-      --bg: #0d0f12;
-      --card-bg: #161a22;
-      --border: #262c36;
-      --accent: #ff0055;
-      --accent-hover: #ff2a70;
-      --text: #f0f3f8;
-      --text-secondary: #8b949e;
-      --success: #00e676;
+      --bg: #0b0e14;
+      --card-bg: #151921;
+      --border: #232936;
+      --accent: #e50914;
+      --accent-hover: #ff1e27;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --success: #10b981;
+      --warning: #f59e0b;
     }
 
     * {
@@ -35,12 +36,12 @@
 
     .container {
       width: 100%;
-      max-width: 680px;
+      max-width: 720px;
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
     header {
@@ -49,21 +50,21 @@
     }
 
     header h1 {
-      font-size: 2rem;
-      font-weight: 700;
+      font-size: 2.2rem;
+      font-weight: 800;
       letter-spacing: -0.5px;
       margin-bottom: 8px;
     }
 
     header p {
-      color: var(--text-secondary);
+      color: var(--text-muted);
       font-size: 0.95rem;
     }
 
-    .input-box {
+    .input-group {
       display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
     input[type="text"] {
@@ -73,7 +74,7 @@
       border-radius: 10px;
       padding: 14px 18px;
       color: var(--text);
-      font-size: 1rem;
+      font-size: 0.95rem;
       outline: none;
       transition: border-color 0.2s;
     }
@@ -91,6 +92,10 @@
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       transition: background 0.2s, transform 0.1s;
     }
 
@@ -103,69 +108,71 @@
     }
 
     button:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
-    .settings-grid {
+    .controls-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       margin-bottom: 24px;
     }
 
-    .select-group {
+    .select-box {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .select-group label {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      font-weight: 500;
+    .select-box label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
     }
 
     select {
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       outline: none;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
-    .status-panel {
+    .status-card {
       display: none;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 20px;
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
-    .media-info {
+    .media-header {
       display: flex;
       gap: 16px;
       align-items: center;
       margin-bottom: 16px;
     }
 
-    .thumbnail {
-      width: 120px;
-      height: 68px;
+    .thumb-preview {
+      width: 128px;
+      height: 72px;
       border-radius: 8px;
       object-fit: cover;
       background: var(--border);
     }
 
-    .details {
+    .media-info {
       flex: 1;
       overflow: hidden;
     }
 
-    .details h3 {
+    .media-info h3 {
       font-size: 1rem;
       white-space: nowrap;
       overflow: hidden;
@@ -173,12 +180,12 @@
       margin-bottom: 4px;
     }
 
-    .details p {
-      color: var(--text-secondary);
+    .media-info p {
+      color: var(--text-muted);
       font-size: 0.85rem;
     }
 
-    .progress-bar {
+    .progress-track {
       width: 100%;
       height: 6px;
       background: var(--border);
@@ -191,53 +198,70 @@
       width: 0%;
       height: 100%;
       background: var(--accent);
-      transition: width 0.3s;
+      transition: width 0.4s ease;
     }
 
     audio {
       width: 100%;
       margin-bottom: 16px;
-      border-radius: 8px;
+      height: 40px;
     }
 
-    .download-btn {
+    .download-action {
+      display: none;
       width: 100%;
-      padding: 14px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
+      padding: 12px;
       background: var(--success);
       color: #000;
       text-decoration: none;
-      border-radius: 10px;
+      text-align: center;
+      border-radius: 8px;
       font-weight: 700;
+      font-size: 0.95rem;
     }
 
-    .download-btn:hover {
-      background: #00c865;
+    .download-action:hover {
+      opacity: 0.9;
     }
 
-    .error-msg {
-      color: #ff4d4d;
-      font-size: 0.9rem;
-      margin-top: 12px;
+    .alert {
       display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-bottom: 16px;
       text-align: center;
     }
 
+    .alert-danger {
+      background: rgba(229, 9, 20, 0.15);
+      border: 1px solid var(--accent);
+      color: #ff6b6b;
+    }
+
     .spinner {
-      display: inline-block;
       width: 16px;
       height: 16px;
-      border: 2px solid rgba(255,255,255,.3);
-      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
       border-top-color: #fff;
-      animation: spin 0.8s ease-in-out infinite;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+      .input-group {
+        flex-direction: column;
+      }
+      button {
+        padding: 14px;
+      }
     }
   </style>
 </head>
@@ -245,166 +269,190 @@
 
   <div class="container">
     <header>
-      <h1>MP3 Downloader Pro</h1>
-      <p>Convert and extract high-quality audio from YouTube videos</p>
+      <h1>MP3 Extractor</h1>
+      <p>High-speed YouTube audio conversion & direct stream provider</p>
     </header>
 
-    <div class="input-box">
-      <input type="text" id="urlInput" placeholder="Paste YouTube link here..." autocomplete="off">
-      <button id="convertBtn">Convert</button>
+    <div class="input-group">
+      <input type="text" id="urlInput" placeholder="Paste YouTube link (e.g. https://youtu.be/...)" autocomplete="off">
+      <button id="processBtn">Extract Audio</button>
     </div>
 
-    <div class="settings-grid">
-      <div class="select-group">
-        <label for="quality">Audio Bitrate</label>
-        <select id="quality">
-          <option value="320">320 kbps (Best)</option>
-          <option value="256">256 kbps (High)</option>
-          <option value="192" selected>192 kbps (Standard)</option>
-          <option value="128">128 kbps (Compact)</option>
+    <div class="controls-grid">
+      <div class="select-box">
+        <label for="bitrate">Bitrate</label>
+        <select id="bitrate">
+          <option value="320">320 kbps (HQ)</option>
+          <option value="256">256 kbps</option>
+          <option value="192" selected>192 kbps</option>
+          <option value="128">128 kbps</option>
         </select>
       </div>
-      <div class="select-group">
-        <label for="format">Audio Format</label>
+
+      <div class="select-box">
+        <label for="format">Container</label>
         <select id="format">
           <option value="mp3">MP3</option>
           <option value="m4a">M4A</option>
-          <option value="wav">WAV</option>
           <option value="opus">OPUS</option>
+          <option value="wav">WAV</option>
+        </select>
+      </div>
+
+      <div class="select-box">
+        <label for="engine">Engine</label>
+        <select id="engine">
+          <option value="cobalt">Cobalt API v10</option>
+          <option value="fallback">Invidious API</option>
         </select>
       </div>
     </div>
 
-    <div id="error" class="error-msg"></div>
+    <div id="alertBox" class="alert alert-danger"></div>
 
-    <div id="statusPanel" class="status-panel">
-      <div class="media-info">
-        <img id="thumb" class="thumbnail" src="" alt="Thumbnail">
-        <div class="details">
-          <h3 id="videoTitle">Processing Media...</h3>
-          <p id="videoMeta">Duration: --:--</p>
+    <div id="statusCard" class="status-card">
+      <div class="media-header">
+        <img id="thumbImg" class="thumb-preview" src="" alt="Thumbnail">
+        <div class="media-info">
+          <h3 id="mediaTitle">Parsing target media...</h3>
+          <p id="mediaDetails">Status: Initializing extraction</p>
         </div>
       </div>
 
-      <div class="progress-bar">
-        <div id="progress" class="progress-fill"></div>
+      <div class="progress-track">
+        <div id="progressFill" class="progress-fill"></div>
       </div>
 
-      <audio id="audioPreview" controls style="display: none;"></audio>
+      <audio id="audioElement" controls style="display: none;"></audio>
 
-      <a id="downloadLink" href="#" target="_blank" class="download-btn" style="display: none;">
-        Download File
+      <a id="downloadBtn" class="download-action" href="#" target="_blank" download>
+        Save Audio File
       </a>
     </div>
   </div>
 
   <script>
-    const convertBtn = document.getElementById('convertBtn');
+    const processBtn = document.getElementById('processBtn');
     const urlInput = document.getElementById('urlInput');
-    const statusPanel = document.getElementById('statusPanel');
-    const progress = document.getElementById('progress');
-    const thumb = document.getElementById('thumb');
-    const videoTitle = document.getElementById('videoTitle');
-    const videoMeta = document.getElementById('videoMeta');
-    const audioPreview = document.getElementById('audioPreview');
-    const downloadLink = document.getElementById('downloadLink');
-    const error = document.getElementById('error');
+    const alertBox = document.getElementById('alertBox');
+    const statusCard = document.getElementById('statusCard');
+    const progressFill = document.getElementById('progressFill');
+    const thumbImg = document.getElementById('thumbImg');
+    const mediaTitle = document.getElementById('mediaTitle');
+    const mediaDetails = document.getElementById('mediaDetails');
+    const audioElement = document.getElementById('audioElement');
+    const downloadBtn = document.getElementById('downloadBtn');
 
-    function extractVideoID(url) {
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-      const match = url.match(regExp);
-      return (match && match[2].length === 11) ? match[2] : null;
+    function parseYouTubeID(url) {
+      const pattern = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
+      const match = url.match(pattern);
+      return match ? match[1] : null;
     }
 
-    function showError(msg) {
-      error.innerText = msg;
-      error.style.display = 'block';
-      convertBtn.disabled = false;
-      convertBtn.innerHTML = 'Convert';
+    function displayError(message) {
+      alertBox.innerText = message;
+      alertBox.style.display = 'block';
+      processBtn.disabled = false;
+      processBtn.innerHTML = 'Extract Audio';
     }
 
-    function resetUI() {
-      error.style.display = 'none';
-      statusPanel.style.display = 'none';
-      audioPreview.style.display = 'none';
-      downloadLink.style.display = 'none';
-      progress.style.width = '0%';
+    function resetState() {
+      alertBox.style.display = 'none';
+      statusCard.style.display = 'none';
+      audioElement.style.display = 'none';
+      downloadBtn.style.display = 'none';
+      progressFill.style.width = '0%';
     }
 
-    async function processConversion() {
-      resetUI();
-      const url = urlInput.value.trim();
-      const videoId = extractVideoID(url);
+    async function executeExtraction() {
+      resetState();
+      const rawUrl = urlInput.value.trim();
+      const videoId = parseYouTubeID(rawUrl);
 
       if (!videoId) {
-        showError('Please enter a valid YouTube URL.');
+        displayError('Invalid YouTube URL format provided.');
         return;
       }
 
-      convertBtn.disabled = true;
-      convertBtn.innerHTML = '<span class="spinner"></span> Parsing...';
+      processBtn.disabled = true;
+      processBtn.innerHTML = '<div class="spinner"></div> Resolving...';
 
-      thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      videoTitle.innerText = "Extracting media metadata...";
-      videoMeta.innerText = "Target Quality: " + document.getElementById('quality').value + " kbps";
-      statusPanel.style.display = 'block';
-      
-      progress.style.width = '30%';
+      thumbImg.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+      mediaTitle.innerText = `YouTube ID: ${videoId}`;
+      mediaDetails.innerText = 'Connecting to extraction engine...';
+      statusCard.style.display = 'block';
+      progressFill.style.width = '25%';
+
+      const selectedBitrate = document.getElementById('bitrate').value;
+      const selectedFormat = document.getElementById('format').value;
+      const selectedEngine = document.getElementById('engine').value;
 
       try {
-        const quality = document.getElementById('quality').value;
-        const format = document.getElementById('format').value;
+        let streamUrl = null;
 
-        const response = await fetch('https://api.cobalt.tools/api/json', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            url: url,
-            audioFormat: format,
-            audioBitrate: quality,
-            isAudioOnly: true
-          })
-        });
+        if (selectedEngine === 'cobalt') {
+          progressFill.style.width = '50%';
+          const response = await fetch('https://api.cobalt.tools/api/json', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              url: `https://www.youtube.com/watch?v=${videoId}`,
+              audioFormat: selectedFormat,
+              audioBitrate: selectedBitrate,
+              isAudioOnly: true
+            })
+          });
 
-        progress.style.width = '70%';
+          if (!response.ok) throw new Error('Primary engine returned error status.');
+          const result = await response.json();
 
-        if (!response.ok) {
-          throw new Error('Conversion pipeline failed.');
-        }
-
-        const data = await response.json();
-
-        if (data.status === 'stream' || data.status === 'redirect') {
-          const streamUrl = data.url;
-          
-          progress.style.width = '100%';
-          videoTitle.innerText = "Audio Extracted Successfully";
-          
-          audioPreview.src = streamUrl;
-          audioPreview.style.display = 'block';
-
-          downloadLink.href = streamUrl;
-          downloadLink.setAttribute('download', `audio.${format}`);
-          downloadLink.style.display = 'flex';
-
-          convertBtn.disabled = false;
-          convertBtn.innerHTML = 'Convert';
+          if (result.status === 'stream' || result.status === 'redirect') {
+            streamUrl = result.url;
+          } else {
+            throw new Error('Pipeline error: Unresolvable stream payload.');
+          }
         } else {
-          throw new Error('Unable to resolve audio stream source.');
+          progressFill.style.width = '50%';
+          const response = await fetch(`https://invidious.io.lol/api/v1/videos/${videoId}`);
+          if (!response.ok) throw new Error('Fallback engine unavailable.');
+          const result = await response.json();
+          
+          if (result.title) mediaTitle.innerText = result.title;
+          const adaptiveFormats = result.adaptiveFormats || [];
+          const audioTrack = adaptiveFormats.find(f => f.container === selectedFormat) || adaptiveFormats.find(f => f.type.includes('audio'));
+          
+          if (audioTrack && audioTrack.url) {
+            streamUrl = audioTrack.url;
+          } else {
+            throw new Error('No compatible audio stream found on fallback engine.');
+          }
         }
+
+        progressFill.style.width = '100%';
+        mediaDetails.innerText = `Format: ${selectedFormat.toUpperCase()} | Target Bitrate: ${selectedBitrate}kbps`;
+
+        audioElement.src = streamUrl;
+        audioElement.style.display = 'block';
+
+        downloadBtn.href = streamUrl;
+        downloadBtn.setAttribute('download', `${videoId}.${selectedFormat}`);
+        downloadBtn.style.display = 'block';
+
+        processBtn.disabled = false;
+        processBtn.innerHTML = 'Extract Audio';
 
       } catch (err) {
-        showError('Failed to fetch audio stream. Please check connection or try another URL.');
-        statusPanel.style.display = 'none';
+        statusCard.style.display = 'none';
+        displayError(`Extraction failed: ${err.message}`);
       }
     }
 
-    convertBtn.addEventListener('click', processConversion);
+    processBtn.addEventListener('click', executeExtraction);
     urlInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') processConversion();
+      if (e.key === 'Enter') executeExtraction();
     });
   </script>
 </body>
