@@ -202,6 +202,22 @@
       font-size: 0.9rem;
     }
 
+    .platform-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .platform-chip {
+      font-size: 0.7rem;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
     .alert {
       display: none;
       padding: 14px 18px;
@@ -212,6 +228,73 @@
       background: var(--error-bg);
       border: 1px solid var(--error-border);
       color: var(--error-text);
+    }
+
+    .alert-toggle {
+      background: none;
+      border: none;
+      color: var(--error-text);
+      text-decoration: underline;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: block;
+      margin: 8px auto 0;
+    }
+
+    .alert-details {
+      display: none;
+      margin-top: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: left;
+      white-space: pre-wrap;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .manual-fallback {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .manual-fallback label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .manual-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .manual-row input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .manual-row button {
+      background: var(--bg-input);
+      border: 1px solid var(--yellow-primary);
+      color: var(--yellow-primary);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      white-space: nowrap;
     }
 
     .status-card {
@@ -434,6 +517,7 @@
       .options-grid { grid-template-columns: 1fr; }
       .input-section { flex-direction: column; }
       .action-row { flex-direction: column; }
+      .manual-row { flex-direction: column; }
     }
   </style>
 </head>
@@ -443,7 +527,7 @@
     <header>
       <img src="arts/iconYT.png" alt="App Icon" class="app-icon" onerror="this.style.display='none'">
       <h1>MP3Downloader</h1>
-      <p>Multi-engine audio extractor for YouTube and direct streams</p>
+      <p>Multi-engine audio extractor for YouTube and other media sources</p>
     </header>
 
     <div id="installBar" class="install-bar">
@@ -452,9 +536,22 @@
     </div>
 
     <div class="input-section">
-      <input type="text" id="urlInput" placeholder="Paste any YouTube link, video ID, or direct audio URL" autocomplete="off">
+      <input type="text" id="urlInput" placeholder="Paste any YouTube link, video ID, media URL, or direct audio file" autocomplete="off">
       <button id="pasteBtn" class="icon-btn" type="button">Paste</button>
       <button id="processBtn" class="process-btn">Extract Audio</button>
+    </div>
+
+    <div class="platform-strip">
+      <span class="platform-chip">YouTube</span>
+      <span class="platform-chip">SoundCloud</span>
+      <span class="platform-chip">Vimeo</span>
+      <span class="platform-chip">TikTok</span>
+      <span class="platform-chip">Twitter / X</span>
+      <span class="platform-chip">Facebook</span>
+      <span class="platform-chip">Dailymotion</span>
+      <span class="platform-chip">Bandcamp</span>
+      <span class="platform-chip">Twitch Clips</span>
+      <span class="platform-chip">Direct audio file</span>
     </div>
 
     <div class="options-grid">
@@ -481,7 +578,18 @@
       </div>
     </div>
 
-    <div id="alertBox" class="alert"></div>
+    <div id="alertBox" class="alert">
+      <div id="alertMessage"></div>
+      <button id="alertToggle" class="alert-toggle" type="button" style="display:none;">Show engine details</button>
+      <div id="alertDetails" class="alert-details"></div>
+      <div id="manualFallback" class="manual-fallback">
+        <label>All engines failed. If you already have a direct stream or file URL, paste it here to load it anyway.</label>
+        <div class="manual-row">
+          <input type="text" id="manualUrlInput" placeholder="https://.../resolved-audio-stream">
+          <button id="manualUrlBtn" type="button">Use URL</button>
+        </div>
+      </div>
+    </div>
 
     <div id="statusCard" class="status-card">
       <div class="media-info">
@@ -549,6 +657,12 @@
     const pasteBtn = document.getElementById('pasteBtn');
     const urlInput = document.getElementById('urlInput');
     const alertBox = document.getElementById('alertBox');
+    const alertMessage = document.getElementById('alertMessage');
+    const alertToggle = document.getElementById('alertToggle');
+    const alertDetails = document.getElementById('alertDetails');
+    const manualFallback = document.getElementById('manualFallback');
+    const manualUrlInput = document.getElementById('manualUrlInput');
+    const manualUrlBtn = document.getElementById('manualUrlBtn');
     const statusCard = document.getElementById('statusCard');
     const progressFill = document.getElementById('progressFill');
     const stageLabel = document.getElementById('stageLabel');
@@ -568,7 +682,7 @@
       'https://dwnld.nichind.dev/api/json'
     ];
 
-    const INVIDIOUS_MIRRORS = [
+    const STATIC_INVIDIOUS_MIRRORS = [
       'https://inv.riverside.rocks',
       'https://invidious.nerdvpn.de',
       'https://vid.puffyan.us',
@@ -576,8 +690,28 @@
       'https://invidious.jing.rocks'
     ];
 
+    const INSTANCE_DIRECTORY_API = 'https://api.invidious.io/instances.json?pretty=0&sort_by=type,health';
+
+    const PLATFORM_MATCHERS = [
+      { regex: /soundcloud\.com/i, label: 'SOUNDCLOUD' },
+      { regex: /vimeo\.com/i, label: 'VIMEO' },
+      { regex: /tiktok\.com/i, label: 'TIKTOK' },
+      { regex: /(twitter\.com|x\.com)/i, label: 'TWITTER / X' },
+      { regex: /(facebook\.com|fb\.watch)/i, label: 'FACEBOOK' },
+      { regex: /dailymotion\.com/i, label: 'DAILYMOTION' },
+      { regex: /bandcamp\.com/i, label: 'BANDCAMP' },
+      { regex: /(clips\.twitch\.tv|twitch\.tv\/.+\/clip)/i, label: 'TWITCH CLIP' },
+      { regex: /reddit\.com/i, label: 'REDDIT' },
+      { regex: /instagram\.com/i, label: 'INSTAGRAM' }
+    ];
+
+    const DIRECT_AUDIO_REGEX = /\.(mp3|wav|m4a|ogg|oga|opus|flac|aac|wma|aiff|aif|alac|weba)(\?.*)?$/i;
+
     const HISTORY_KEY = 'mp3downloader_history';
     const MAX_HISTORY = 8;
+
+    let cachedInvidiousInstances = null;
+    let manualHandler = null;
 
     function extractYouTubeId(rawUrl) {
       const trimmed = rawUrl.trim();
@@ -598,15 +732,40 @@
       return null;
     }
 
-    function isDirectAudioUrl(url) {
-      return /\.(mp3|wav|m4a|ogg|opus|flac)(\?.*)?$/i.test(url);
+    function detectPlatformLabel(url) {
+      for (const matcher of PLATFORM_MATCHERS) {
+        if (matcher.regex.test(url)) return matcher.label;
+      }
+      return 'EXTERNAL STREAM';
     }
 
-    function showError(msg) {
-      alertBox.innerText = msg;
+    function isDirectAudioUrl(url) {
+      return DIRECT_AUDIO_REGEX.test(url);
+    }
+
+    function showError(msg, errorLog, showManual) {
+      alertMessage.innerText = msg;
       alertBox.style.display = 'block';
+
+      if (errorLog && errorLog.length) {
+        alertDetails.innerText = errorLog.join('\n');
+        alertToggle.style.display = 'block';
+        alertToggle.innerText = 'Show engine details';
+        alertDetails.style.display = 'none';
+      } else {
+        alertToggle.style.display = 'none';
+        alertDetails.style.display = 'none';
+      }
+
+      manualFallback.style.display = showManual ? 'block' : 'none';
       resetButton();
     }
+
+    alertToggle.addEventListener('click', () => {
+      const isHidden = alertDetails.style.display === 'none';
+      alertDetails.style.display = isHidden ? 'block' : 'none';
+      alertToggle.innerText = isHidden ? 'Hide engine details' : 'Show engine details';
+    });
 
     function resetButton() {
       processBtn.disabled = false;
@@ -615,6 +774,9 @@
 
     function resetState() {
       alertBox.style.display = 'none';
+      alertToggle.style.display = 'none';
+      alertDetails.style.display = 'none';
+      manualFallback.style.display = 'none';
       statusCard.style.display = 'none';
       audioElement.style.display = 'none';
       downloadBtn.style.display = 'none';
@@ -622,6 +784,7 @@
       progressFill.style.width = '0%';
       stageLabel.innerText = '';
       mediaChannel.innerText = '';
+      manualHandler = null;
     }
 
     function setStage(percent, label) {
@@ -641,44 +804,81 @@
       }
     }
 
-    async function processCobaltEngine(targetUrl, format, bitrate) {
-      for (const endpoint of ENGINE_APIS) {
-        try {
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              url: targetUrl,
-              audioFormat: format,
-              audioBitrate: bitrate,
-              isAudioOnly: true
-            }),
-            signal: AbortSignal.timeout(8000)
-          });
-
-          if (!res.ok) continue;
+    async function getInvidiousInstances() {
+      if (cachedInvidiousInstances) return cachedInvidiousInstances;
+      try {
+        const res = await fetch(INSTANCE_DIRECTORY_API, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
           const data = await res.json();
-          if (data.status === 'stream' || data.status === 'redirect') {
-            return data.url;
+          const live = data
+            .filter(entry => entry[1] && entry[1].type === 'https' && entry[1].api === true && entry[1].uri)
+            .map(entry => entry[1].uri);
+          if (live.length) {
+            cachedInvidiousInstances = Array.from(new Set([...live, ...STATIC_INVIDIOUS_MIRRORS])).slice(0, 10);
+            return cachedInvidiousInstances;
           }
-          if (data.status === 'tunnel' && data.url) {
-            return data.url;
+        }
+      } catch (e) {
+        // directory unreachable, fall through to static list
+      }
+      cachedInvidiousInstances = STATIC_INVIDIOUS_MIRRORS;
+      return cachedInvidiousInstances;
+    }
+
+    async function processCobaltEngine(targetUrl, format, bitrate, errorLog) {
+      for (const endpoint of ENGINE_APIS) {
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                url: targetUrl,
+                audioFormat: format,
+                audioBitrate: bitrate,
+                isAudioOnly: true
+              }),
+              signal: AbortSignal.timeout(6000 + attempt * 2000)
+            });
+
+            if (!res.ok) {
+              errorLog.push(`${endpoint} (attempt ${attempt}): HTTP ${res.status}`);
+              continue;
+            }
+
+            const data = await res.json();
+
+            if ((data.status === 'stream' || data.status === 'redirect' || data.status === 'tunnel') && data.url) {
+              return data.url;
+            }
+
+            if (data.status === 'error') {
+              const reason = (data.text || (data.error && data.error.code)) || 'rejected the request';
+              errorLog.push(`${endpoint}: ${reason}`);
+              break;
+            }
+
+            errorLog.push(`${endpoint} (attempt ${attempt}): unexpected response`);
+          } catch (e) {
+            errorLog.push(`${endpoint} (attempt ${attempt}): ${e.name === 'TimeoutError' ? 'timed out' : 'network error'}`);
           }
-        } catch (e) {
-          continue;
         }
       }
       return null;
     }
 
-    async function processInvidiousFallback(ytId) {
-      for (const mirror of INVIDIOUS_MIRRORS) {
+    async function processInvidiousFallback(ytId, errorLog) {
+      const mirrors = await getInvidiousInstances();
+      for (const mirror of mirrors) {
         try {
           const res = await fetch(`${mirror}/api/v1/videos/${ytId}`, { signal: AbortSignal.timeout(6000) });
-          if (!res.ok) continue;
+          if (!res.ok) {
+            errorLog.push(`${mirror}: HTTP ${res.status}`);
+            continue;
+          }
           const data = await res.json();
           if (data && data.adaptiveFormats) {
             const audioTracks = data.adaptiveFormats.filter(f => f.type && f.type.includes('audio'));
@@ -686,9 +886,12 @@
               audioTracks.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
               return { url: audioTracks[0].url, title: data.title, author: data.author };
             }
+            errorLog.push(`${mirror}: no audio track in response`);
+          } else {
+            errorLog.push(`${mirror}: video not found on this mirror`);
           }
         } catch (e) {
-          continue;
+          errorLog.push(`${mirror}: ${e.name === 'TimeoutError' ? 'timed out' : 'network error'}`);
         }
       }
       return null;
@@ -732,7 +935,7 @@
         const titleEl = document.createElement('p');
         titleEl.innerText = item.title;
         const metaEl = document.createElement('span');
-        metaEl.innerText = `${item.format.toUpperCase()} · ${item.bitrate} kbps`;
+        metaEl.innerText = `${item.format.toUpperCase()} \u00b7 ${item.bitrate} kbps`;
         info.appendChild(titleEl);
         info.appendChild(metaEl);
 
@@ -761,27 +964,58 @@
         const text = await navigator.clipboard.readText();
         if (text) urlInput.value = text.trim();
       } catch (e) {
-        showError('Clipboard access was blocked by the browser.');
+        showError('Clipboard access was blocked by the browser.', null, false);
       }
     });
+
+    manualUrlBtn.addEventListener('click', () => {
+      const manualUrl = manualUrlInput.value.trim();
+      if (!manualUrl) return;
+      if (manualHandler) {
+        manualHandler(manualUrl);
+      }
+    });
+
+    function applyResolvedStream(streamUrl, badgeLabel, sourceUrl, format, bitrate) {
+      alertBox.style.display = 'none';
+      statusCard.style.display = 'block';
+      typeBadge.innerText = badgeLabel;
+      setStage(100, 'Ready');
+
+      audioElement.src = streamUrl;
+      audioElement.style.display = 'block';
+
+      downloadBtn.href = streamUrl;
+      downloadBtn.setAttribute('download', `${mediaTitle.innerText || 'audio'}.${format}`);
+      downloadBtn.style.display = 'block';
+
+      saveToHistory({
+        title: mediaTitle.innerText || 'Manual source',
+        thumb: mediaThumb.src || 'arts/iconYT.png',
+        format: format,
+        bitrate: bitrate,
+        sourceUrl: sourceUrl
+      });
+
+      resetButton();
+    }
 
     async function handleExtraction() {
       resetState();
       const inputUrl = urlInput.value.trim();
 
       if (!inputUrl) {
-        showError('Please enter a media URL.');
+        showError('Please enter a media URL.', null, false);
         return;
       }
 
       processBtn.disabled = true;
       processBtn.innerHTML = '<div class="spinner"></div> Extracting...';
       statusCard.style.display = 'block';
-      setStage(15, 'Reading the link');
+      setStage(10, 'Reading the link');
 
       const selectedFormat = document.getElementById('format').value;
       const selectedBitrate = document.getElementById('bitrate').value;
-
       const ytId = extractYouTubeId(inputUrl);
 
       if (isDirectAudioUrl(inputUrl) && !ytId) {
@@ -808,55 +1042,93 @@
         return;
       }
 
-      if (!ytId) {
-        showError('This link could not be recognized as a YouTube video or a direct audio file.');
-        statusCard.style.display = 'none';
+      const errorLog = [];
+
+      if (ytId) {
+        typeBadge.innerText = 'YOUTUBE MEDIA';
+        mediaThumb.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+        thumbBtn.href = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
+        thumbBtn.style.display = 'block';
+
+        setStage(25, 'Fetching video details');
+        const meta = await fetchYouTubeMeta(ytId);
+        if (meta) {
+          mediaTitle.innerText = meta.title;
+          mediaChannel.innerText = meta.author || '';
+        } else {
+          mediaTitle.innerText = `YouTube video ${ytId}`;
+        }
+
+        setStage(45, 'Contacting audio engines');
+
+        try {
+          let finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, selectedBitrate, errorLog);
+
+          if (!finalStreamUrl) {
+            setStage(70, 'Trying fallback nodes');
+            typeBadge.innerText = 'FALLBACK NODE';
+            const fallbackData = await processInvidiousFallback(ytId, errorLog);
+            if (fallbackData) {
+              finalStreamUrl = fallbackData.url;
+              if (!meta) {
+                mediaTitle.innerText = fallbackData.title || mediaTitle.innerText;
+                mediaChannel.innerText = fallbackData.author || '';
+              }
+            }
+          }
+
+          if (!finalStreamUrl) {
+            throw new Error(`All audio engines failed (${errorLog.length} attempts logged). YouTube may be rate-limiting anonymous requests right now.`);
+          }
+
+          setStage(100, 'Ready');
+
+          audioElement.src = finalStreamUrl;
+          audioElement.style.display = 'block';
+
+          downloadBtn.href = finalStreamUrl;
+          downloadBtn.setAttribute('download', `${mediaTitle.innerText}.${selectedFormat}`);
+          downloadBtn.style.display = 'block';
+
+          saveToHistory({
+            title: mediaTitle.innerText,
+            thumb: mediaThumb.src,
+            format: selectedFormat,
+            bitrate: selectedBitrate,
+            sourceUrl: inputUrl
+          });
+
+          resetButton();
+
+        } catch (err) {
+          statusCard.style.display = 'none';
+          manualHandler = (manualUrl) => applyResolvedStream(manualUrl, 'MANUAL SOURCE', inputUrl, selectedFormat, selectedBitrate);
+          showError(err.message || 'Failed to establish audio connection.', errorLog, true);
+        }
         return;
       }
 
-      typeBadge.innerText = 'YOUTUBE MEDIA';
-      mediaThumb.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-      thumbBtn.href = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
-      thumbBtn.style.display = 'block';
-
-      setStage(30, 'Fetching video details');
-      const meta = await fetchYouTubeMeta(ytId);
-      if (meta) {
-        mediaTitle.innerText = meta.title;
-        mediaChannel.innerText = meta.author || '';
-      } else {
-        mediaTitle.innerText = `YouTube video ${ytId}`;
-      }
-
-      setStage(55, 'Contacting audio engines');
+      const platformLabel = detectPlatformLabel(inputUrl);
+      typeBadge.innerText = platformLabel;
+      mediaThumb.src = 'arts/iconYT.png';
+      mediaTitle.innerText = 'Resolving media source...';
+      setStage(40, 'Contacting audio engines');
 
       try {
-        let finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, selectedBitrate);
+        const finalStreamUrl = await processCobaltEngine(inputUrl, selectedFormat, selectedBitrate, errorLog);
 
         if (!finalStreamUrl) {
-          setStage(75, 'Trying fallback nodes');
-          typeBadge.innerText = 'FALLBACK NODE';
-          const fallbackData = await processInvidiousFallback(ytId);
-          if (fallbackData) {
-            finalStreamUrl = fallbackData.url;
-            if (!meta) {
-              mediaTitle.innerText = fallbackData.title || mediaTitle.innerText;
-              mediaChannel.innerText = fallbackData.author || '';
-            }
-          }
-        }
-
-        if (!finalStreamUrl) {
-          throw new Error('All audio nodes failed to process this link. Try again in a moment.');
+          throw new Error(`No engine could extract audio from this ${platformLabel.toLowerCase()} link (${errorLog.length} attempts logged).`);
         }
 
         setStage(100, 'Ready');
+        mediaTitle.innerText = `${platformLabel} audio`;
 
         audioElement.src = finalStreamUrl;
         audioElement.style.display = 'block';
 
         downloadBtn.href = finalStreamUrl;
-        downloadBtn.setAttribute('download', `${mediaTitle.innerText}.${selectedFormat}`);
+        downloadBtn.setAttribute('download', `audio.${selectedFormat}`);
         downloadBtn.style.display = 'block';
 
         saveToHistory({
@@ -871,13 +1143,17 @@
 
       } catch (err) {
         statusCard.style.display = 'none';
-        showError(err.message || 'Failed to establish audio connection.');
+        manualHandler = (manualUrl) => applyResolvedStream(manualUrl, 'MANUAL SOURCE', inputUrl, selectedFormat, selectedBitrate);
+        showError(err.message || 'Failed to establish audio connection.', errorLog, true);
       }
     }
 
     processBtn.addEventListener('click', handleExtraction);
     urlInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') handleExtraction();
+    });
+    manualUrlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') manualUrlBtn.click();
     });
 
     renderHistory();
